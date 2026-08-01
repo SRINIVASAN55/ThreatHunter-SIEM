@@ -1,0 +1,6 @@
+Jan 15 10:23:01 webserver sshd[1234]: Accepted publickey for admin from 192.168.1.5 port 22
+Jan 15 10:25:01 webserver sshd[1234]: Failed password for root from 10.0.0.99 port 54321 ssh2
+Jan 15 10:25:02 webserver sshd[1234]: Failed password for root from 10.0.0.99 port 54322 ssh2
+Jan 15 10:25:03 webserver sshd[1234]: authentication failure; user=root rhost=10.0.0.99
+Jan 15 10:30:01 webserver sudo: www-data : COMMAND=/bin/bash
+Jan 15 10:33:00 webserver bash: rm /var/log/auth.log
