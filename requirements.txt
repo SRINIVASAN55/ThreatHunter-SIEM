@@ -1,0 +1,3 @@
+# ThreatHunter-SIEM runs entirely on Python stdlib — no pip install needed!
+# Optional for enhanced visualizations:
+rich>=13.0.0
