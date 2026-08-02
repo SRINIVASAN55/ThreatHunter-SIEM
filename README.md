@@ -22,7 +22,85 @@ ThreatHunter correlates events across logs, network flows, and process telemetry
 
 ---
 
-### Architecture
+## Prerequisites
+
+| Requirement | Details |
+|-------------|---------|
+| Python | 3.8 or higher |
+| OS | Linux, macOS, Windows |
+| Log files | auth.log, syslog, or any line-based log |
+
+Check your Python version:
+```bash
+python3 --version
+```
+
+---
+
+## Installation
+
+```bash
+git clone https://github.com/SRINIVASAN55/ThreatHunter-SIEM.git
+cd ThreatHunter-SIEM
+pip install -r requirements.txt
+```
+
+---
+
+## Running It
+
+### Demo mode — see it in action immediately
+```bash
+python3 threathunter.py --demo
+```
+Runs a built-in simulated attack scenario (brute force → lateral movement → exfiltration) and shows exactly how ThreatHunter detects and reports it. No log files needed.
+
+### Analyze a log file
+```bash
+python3 threathunter.py --file /var/log/auth.log
+python3 threathunter.py --file /var/log/syslog
+python3 threathunter.py --file /path/to/any.log
+```
+Scans the file against all detection rules and prints findings with severity, MITRE technique ID, and recommended response.
+
+### Analyze multiple log files at once
+```bash
+python3 threathunter.py --file /var/log/auth.log --file /var/log/syslog --file /var/log/apache2/access.log
+```
+
+### Live tail — monitor logs in real time
+```bash
+python3 threathunter.py --file /var/log/auth.log --tail
+```
+Watches the log file for new lines and alerts instantly. Like `tail -f` but with threat detection on top.
+
+### Save report to a directory
+```bash
+python3 threathunter.py --file /var/log/auth.log --output ./reports/
+```
+Writes an HTML report and JSON findings file to `./reports/`.
+
+### Use a custom rules file
+```bash
+python3 threathunter.py --file /var/log/auth.log --rules my_rules.json
+```
+Override the built-in rules with your own detection logic in JSON format.
+
+---
+
+## All CLI Flags
+
+| Flag | Short | Description | Example |
+|------|-------|-------------|---------|
+| `--file` | `-f` | Log file to analyze (repeatable) | `-f /var/log/auth.log` |
+| `--tail` | | Live tail mode on the last `--file` | `--tail` |
+| `--demo` | | Run built-in attack scenario | `--demo` |
+| `--output` | `-o` | Directory for HTML/JSON reports | `-o ./reports` |
+| `--rules` | | Custom rules JSON file | `--rules my_rules.json` |
+
+---
+
+## Architecture
 
 ```
 Log Sources          Correlation Engine        Output
@@ -37,9 +115,7 @@ custom feeds  ──┘──▶  Threat Intel      ──▶  Webhook / SIEM
 
 ---
 
-### Rules Engine
-
-Each rule maps to a MITRE technique. Ships with detections for:
+## Detection Rules (MITRE Mapped)
 
 - **T1110** — Brute force (SSH, RDP, web login)
 - **T1021** — Remote service abuse (SMB, WinRM, RDP)
@@ -47,42 +123,21 @@ Each rule maps to a MITRE technique. Ships with detections for:
 - **T1071** — Application-layer C2 (HTTP/DNS/ICMP)
 - **T1003** — Credential dumping indicators
 - **T1053** — Scheduled task creation anomalies
-- **T1078** — Valid account misuse (impossible travel, off-hours)
+- **T1078** — Valid account misuse (off-hours, impossible travel)
 - **T1190** — Exploit public-facing application
 
 ---
 
-### Install & Run
+## Troubleshooting
 
-```bash
-git clone https://github.com/SRINIVASAN55/ThreatHunter-SIEM
-cd ThreatHunter-SIEM
-pip install -r requirements.txt
+**`No findings` on a log file you know has issues**
+→ Try `--demo` first to confirm the tool works, then check log format — ThreatHunter expects line-based text logs.
 
-# Watch live logs
-python threat_hunter.py --watch /var/log
+**`Permission denied` reading log files**
+→ Run with `sudo` or copy logs to a readable location: `sudo cp /var/log/auth.log ~/auth.log`
 
-# Hunt through historical logs
-python threat_hunter.py --hunt --logdir /var/log --days 30
-
-# Generate incident report
-python threat_hunter.py --report --output report.html
-```
-
----
-
-### Sample Incident Report
-
-After a hunt session ThreatHunter generates a timeline like this:
-
-```
-[2024-01-15 02:13:44]  INITIAL ACCESS    — Spearphishing link clicked (T1566.002)
-[2024-01-15 02:14:02]  EXECUTION         — PowerShell download cradle (T1059.001)
-[2024-01-15 02:14:19]  PERSISTENCE       — Registry run key added (T1547.001)
-[2024-01-15 02:31:07]  CREDENTIAL ACCESS — LSASS memory read (T1003.001)
-[2024-01-15 03:02:55]  LATERAL MOVEMENT  — Pass-the-hash to DC (T1550.002)
-[2024-01-15 03:44:12]  EXFILTRATION      — 2.3GB to 185.220.101.45:443 (T1041)
-```
+**Report not generated**
+→ Make sure the output directory exists: `mkdir -p ./reports` then re-run with `-o ./reports`
 
 ---
 
