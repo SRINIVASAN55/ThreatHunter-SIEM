@@ -1,5 +1,9 @@
 # ThreatHunter-SIEM
 
+![CI](https://github.com/SRINIVASAN55/ThreatHunter-SIEM/actions/workflows/ci.yml/badge.svg) ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg) ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+
+
+
 **Detection Engine for Security Analysts**
 
 [![Python](https://img.shields.io/badge/python-3.8+-blue)](https://python.org)
